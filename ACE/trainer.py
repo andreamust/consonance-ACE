@@ -12,12 +12,11 @@ from pathlib import Path
 import gin
 import lightning as L
 import torch
+import wandb
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping  # type: ignore
 from lightning.pytorch.callbacks.lr_monitor import LearningRateMonitor
 from lightning.pytorch.callbacks.model_checkpoint import ModelCheckpoint  # type: ignore
 from lightning.pytorch.loggers import WandbLogger
-
-import wandb
 
 from .dataloader import ChocoAudioDataModule
 
@@ -112,27 +111,13 @@ def main(model_name: str, run_name: str, cache_name: str = "cqt_augment_long"):
         data_path: Path to the data.
     """
     # Import all possible models
-    from ACE.models.BTC import BTCModel
-    from ACE.models.BTC_decomposed import BTCDecomposedModel
     from ACE.models.conformer import ConformerModel
     from ACE.models.conformer_decomposed import ConformerDecomposedModel
-    from ACE.models.conformer_decomposed_att import (
-        ConformerDecomposedHierarchicalAttentionModel,
-    )
-    from ACE.models.conformer_decomposed_hier import (
-        ConformerDecomposedHierarchicalModel,
-    )
-    from ACE.models.mlp import MlpModel
 
     # Create a registry of models
     model_registry = {
-        "BTC": BTCModel,
-        "BTC_decomposed": BTCDecomposedModel,
         "conformer": ConformerModel,
         "conformer_decomposed": ConformerDecomposedModel,
-        "conformer_decomposed_hier": ConformerDecomposedHierarchicalModel,
-        "conformer_decomposed_att": ConformerDecomposedHierarchicalAttentionModel,
-        "mlp": MlpModel,
     }
 
     # Get the model class from the registry

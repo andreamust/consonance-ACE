@@ -13,7 +13,7 @@ from ACE.utils import PositionalEncoding
 
 
 @gin.configurable
-class ConformerDecomposedHierarchicalModel(L.LightningModule):
+class ConformerDecomposedModel(L.LightningModule):
     def __init__(
         self,
         vocabularies: dict,  # This dict is passed in the trainer from the dataloader
