@@ -1,0 +1,21 @@
+# Conformer model configuration
+ConformerDecomposedHierarchicalModel.input_dim = 144  # CQT feature dimension 
+ConformerDecomposedHierarchicalModel.conformer_dim = 144
+ConformerDecomposedHierarchicalModel.num_heads = 4
+ConformerDecomposedHierarchicalModel.ffn_dim = 1024
+ConformerDecomposedHierarchicalModel.num_layers = 6
+ConformerDecomposedHierarchicalModel.depthwise_conv_kernel_size = 31
+ConformerDecomposedHierarchicalModel.dropout = 0.4
+ConformerDecomposedHierarchicalModel.learning_rate = 8e-4
+ConformerDecomposedHierarchicalModel.use_group_norm = False
+ConformerDecomposedHierarchicalModel.convolution_first = True
+ConformerDecomposedHierarchicalModel.positional_encoding = True
+ConformerDecomposedHierarchicalModel.loss = 'consonance_decomposed'  # "decomposed" or "consonance_decomposed"
+ConformerDecomposedHierarchicalModel.root_weight = 1.0
+ConformerDecomposedHierarchicalModel.bass_weight = 1.0
+ConformerDecomposedHierarchicalModel.chord_weight = 2.0
+ConformerDecomposedHierarchicalModel.min_notes_weight = 2.0
+ConformerDecomposedHierarchicalModel.smoothing_alpha = 0.075 
+ConformerDecomposedHierarchicalModel.mir_eval_on_validation = False
+# Callback configuration
+ModelCheckpoint.filename = 'FINAL-{epoch}-{val_mechanical_consonance:.2f}'

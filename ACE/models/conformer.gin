@@ -1,0 +1,16 @@
+# Conformer model configuration
+ConformerModel.input_dim = 144  # CQT feature dimension 
+ConformerModel.vocab_type = 'complete'
+ConformerModel.hidden_dim = 144
+ConformerModel.num_heads = 4
+ConformerModel.ffn_dim = 1024
+ConformerModel.num_layers = 6
+ConformerModel.depthwise_conv_kernel_size = 31
+ConformerModel.dropout = 0.3
+ConformerModel.learning_rate = 8e-4
+ConformerModel.use_group_norm = False
+ConformerModel.convolution_first = True
+ConformerModel.positional_encoding = True
+
+# Callback configuration
+ModelCheckpoint.filename = 'conformer-{epoch}-{val_mechanical_consonance:.2f}'

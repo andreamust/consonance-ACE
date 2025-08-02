@@ -1,0 +1,38 @@
+# Constants
+target_sample_rate = 22050
+hop_length = 2048
+max_sequence_length = 10.0
+cache_path = "/home/must/Documents/marl_data/cache/cqt_augment_short"
+chords_vocab_file = "./ACE/chords_vocab.joblib"
+
+# Audio processing configuration
+AudioProcessor.target_sample_rate = %target_sample_rate
+AudioProcessor.hop_length = %hop_length
+AudioProcessor.max_sequence_length = %max_sequence_length
+AudioProcessor.device = "cuda"  
+AudioProcessor.normalize = True
+AudioProcessor.transform = @transforms.CQTransform()
+
+# CQT configuration
+CQTransform.sample_rate = %target_sample_rate
+CQTransform.hop_length = %hop_length
+CQTransform.bins_per_octave = 24
+CQTransform.num_octaves = 6
+CQTransform.start_note = "C1"
+
+# Chord processing configuration
+ChordProcessor.sr = %target_sample_rate
+ChordProcessor.hop_length = %hop_length
+ChordProcessor.duration = %max_sequence_length
+ChordProcessor.vocab_path = "./ACE/chords_vocab.joblib"
+
+# Dataset processing configuration
+ChoCoProcessor.audio_path = "/home/must/Documents/marl_data/audio"
+ChoCoProcessor.jams_path = "/home/must/Documents/marl_data/jams"
+ChoCoProcessor.cache_path = %cache_path
+ChoCoProcessor.excerpt_per_song = 100
+ChoCoProcessor.excerpt_distance = 5
+ChoCoProcessor.augmentation_range = (-5, 7, 1)  # (0, 1, 1) for no augmentation
+ChoCoProcessor.allowed_datasets = ("isophonics", "billboard", "rwc-pop", "uspop2002")
+ChoCoProcessor.audio_extensions = (".mp3", ".flac")
+ChoCoProcessor.n_jobs = 4  # Higher number only if a lot of augmentation is used 

@@ -1,0 +1,12 @@
+wandb==0.19.8
+tqdm==4.67.1
+torchaudio==2.6.0
+torch==2.6.0
+harte-library==0.4.5
+mir_eval==0.8.2
+jams==0.3.4
+librosa==0.11.0
+gin-config==0.5.0
+lightning==2.5.1
+pumpp==0.4.0
+scikit-learn==1.6.1 
