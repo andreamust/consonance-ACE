@@ -15,17 +15,17 @@ This repository contains the official implementation of the paper:
    cd consonance-ACE
    ```
 
-Create the conda environment (Python 3.11):
+2. Create the conda environment (Python 3.11):
 
-```bash
-conda create -n ace python=3.11
-conda activate ace
-```
-Install dependencies:
+   ```bash
+   conda create -n ace python=3.11
+   conda activate ace
+   ```
+3. Install dependencies:
 
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## 📂 Dataset Preparation
 
@@ -47,9 +47,7 @@ Prepare the dataset features by running:
 python ACE/preprocess_data.py
 ```
 
-This generates cache files containing both the preprocessed audio features and chord labels. 
-
-Parameters for the preprocessing script can be adjusted in `ACE/preprocess/dataset.gin`.
+This generates cache files containing both the preprocessed audio features and chord labels. Parameters for the preprocessing script can be adjusted in `ACE/preprocess/dataset.gin`.
 
 ## 🚀 Training
 To train a model, run:
@@ -57,11 +55,11 @@ To train a model, run:
 ```bash
 python -m ACE.trainer --model model_name --name run_name
 ```
-* --model: choose between
+* `--model`: choose between
     * `conformer`: baseline classification model 
     * `conformer_decomposed`: decomposition-based proposed in the paper. 
 
-* --name: optional, used for logging the run on [Weights & Biases](https://wandb.ai/).
+* `--name`: optional, used for logging the run on [Weights & Biases](https://wandb.ai/).
 
 ## 🎯 Models
 Two models are implemented in this repository:
