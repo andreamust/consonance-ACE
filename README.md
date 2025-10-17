@@ -76,16 +76,25 @@ Models are stored in the `ACE/models` directory, which also contains `.gin` conf
 
 ## 🔮 Inference
 
-TBD
-
-<!-- To run inference with a trained model, use the following command:
+Run chord inference on an audio file using the trained **conformer_decomposed** model:
 
 ```bash
-python -m ACE.inference --model model_name --input audio_file
+python -m ACE.inference --audio path/to/audio.wav --out path/to/output.lab
 ```
 
-* `model_name`: specify the model to use (either `conformer` or `conformer_decomposed`).
-* `audio_file`: path to the audio file for which to predict chord labels. -->
+This processes the entire track in 20 s segments, decodes predictions, merges identical consecutive chords, and outputs a .lab file:
+
+```
+start_time    end_time    chord_label
+0.000000      2.581995    E:maj
+2.581995      5.163990    B:maj
+5.163990      7.745985    A:maj
+```
+
+The resulting .lab file contains the full chord sequence for the input track and can be visualised in Sonic Visualiser or any standard chord annotation tool.
+
+By default, inference uses the pretrained checkpoint located at
+`ACE/checkpoints/conformer_decomposed_smooth.ckpt`, provided in this repository.
 
 ## 📑 Citation
 
@@ -99,7 +108,6 @@ If you use this code, please cite:
   year      = {2025},
   location  = {Daejeon, South Korea},
   publisher = {International Society for Music Information Retrieval},
-
 }
 ```
 

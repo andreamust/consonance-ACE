@@ -1,3 +1,9 @@
+"""
+Run inference on full audio files using a trained ConformerDecomposedModel.
+The audio is processed in 20-second chunks, and the predictions are merged.
+The final output is saved as a .lab file with chord annotations.
+"""
+
 from pathlib import Path
 
 import librosa
@@ -139,11 +145,11 @@ def run_inference(audio_path: Path, checkpoint: Path, out_lab: Path):
 
 
 if __name__ == "__main__":
+    # Example usage
+    # python -m ACE.inference --audio path/to/audio.wav --out path/to/output.lab
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Run full-audio inference with 20s chunks and merge identical chords."
-    )
+    parser = argparse.ArgumentParser(description="Run full-audio inference.")
     parser.add_argument("--audio", type=Path, required=True, help="Input audio file")
     parser.add_argument(
         "--ckpt",
