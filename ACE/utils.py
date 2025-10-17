@@ -4,7 +4,6 @@ Utility functions for the repository.
 
 import math
 
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -24,13 +23,3 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x + self.pe[:, : x.size(1)]  # type: ignore
-
-
-def fix_jams():
-    # Monkey patch NumPy to add back the removed float_ type alias
-    if not hasattr(np, "float_"):
-        np.float_ = np.float64
-
-
-if __name__ == "__main__":
-    fix_jams()

@@ -42,18 +42,6 @@ INTERVAL_MAP = {
 }
 
 
-# def mode_filter(labels: list[str], window_size: int = 5) -> list[str]:
-#     smoothed = []
-#     for i in range(len(labels)):
-#         start = max(0, i - window_size // 2)
-#         end = min(len(labels), i + window_size // 2 + 1)
-#         window = labels[start:end]
-#         counts = Counter(window)
-#         most_common = counts.most_common(1)[0][0]  # Get label with highest frequency
-#         smoothed.append(most_common)
-#     return smoothed
-
-
 def mode_filter(seq: np.ndarray, window_size: int = 5) -> np.ndarray:
     smoothed = []
     T = len(seq)
@@ -183,36 +171,6 @@ def convert_predictions_decomposed(
     labels = []
     start_idx = 0
 
-    # root_predictions = mode_filter(root_predictions, window_size=5)
-    # bass_predictions = mode_filter(bass_predictions, window_size=5)
-    # chord_predictions = mean_filter_sequence(chord_predictions, window_size=5)
-    # # Decode all chord predictions to labels
-    # chord_labels = []
-    # for i in range(T):
-    #     chord_label = decode_chord(
-    #         root=root_predictions[i],
-    #         bass=bass_predictions[i],
-    #         chord=chord_predictions[i],
-    #         threshold=threshold,
-    #     )
-    #     chord_labels.append(chord_label)
-
-    # # Group consecutive identical chord labels into intervals
-    # current_label = chord_labels[0]
-
-    # for i in range(1, T):
-    #     if chord_labels[i] != current_label:
-    #         # End of current chord segment
-    #         intervals.append((times[start_idx], times[i]))
-    #         labels.append(current_label)
-    #         start_idx = i
-    #         current_label = chord_labels[i]
-
-    # # Add the final interval
-    # intervals.append((times[start_idx], segment_duration))
-    # labels.append(current_label)
-
-    # return np.array(intervals), labels
     # --- STEP 1: Decode each frame ---
     chord_labels = [
         decode_chord(
@@ -224,10 +182,7 @@ def convert_predictions_decomposed(
         for i in range(T)
     ]
 
-    # --- STEP 2: Apply smoothing filter (mode) ---
-    # chord_labels = mode_filter(raw_labels, window_size=5)
-
-    # --- STEP 3: Group consecutive identical chord labels into intervals ---
+    # --- STEP 2: Group consecutive identical chord labels into intervals ---
     intervals = []
     labels = []
     start_idx = 0
@@ -243,7 +198,7 @@ def convert_predictions_decomposed(
     intervals.append((times[start_idx], segment_duration))
     labels.append(current_label)
 
-    # --- STEP 4: Remove short segments ---
+    # --- STEP 3: Remove short segments ---
     intervals, labels = remove_short_chords(intervals, labels, min_duration=0.3)
 
     return np.array(intervals), labels
