@@ -92,7 +92,7 @@ def run_inference(audio_path: Path, checkpoint: Path, out_lab: Path):
     )
 
     # Get total duration
-    total_dur = librosa.get_duration(filename=str(audio_path))
+    total_dur = librosa.get_duration(path=str(audio_path))
     n_chunks = int(np.ceil(total_dur / chunk_dur))
     print(f"🔍 Processing {n_chunks} chunks of ~{chunk_dur:.1f}s each")
 
