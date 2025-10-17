@@ -2,9 +2,7 @@
 
 This repository contains the official implementation of the paper:  
 
-> **From Discord to Harmony: Decomposed Consonance-Based Training for Improved Audio Chord Estimation**  
-> Andrea Poltronieri, Xavier Serra, Martín Rocamora  
-> *Proceedings of the 26th International Society for Music Information Retrieval Conference (ISMIR), Daejeon, South Korea, 2025.*  
+> Poltronieri, A., Serra, X. and Rocamora, M. (2025) ‘From Discord to Harmony: Decomposed Consonance-Based Training for Improved Audio Chord Estimation’, in Proceedings of the 26th International Society for Music Information Retrieval Conference (ISMIR). Daejeon, South Korea: International Society for Music Information Retrieval, ISMIR 2025. Available at: https://arxiv.org/abs/2509.01588.
 
 
 ## 📦 Installation
@@ -105,9 +103,10 @@ If you use this code, please cite:
   title     = {From Discord to Harmony: Decomposed Consonance-Based Training for Improved Audio Chord Estimation},
   author    = {Poltronieri, Andrea and Serra, Xavier and Rocamora, Martín},
   booktitle = {Proceedings of the 26th International Society for Music Information Retrieval Conference (ISMIR)},
+  publisher = {International Society for Music Information Retrieval, ISMIR 2025},
   year      = {2025},
   location  = {Daejeon, South Korea},
-  publisher = {International Society for Music Information Retrieval},
+  url={https://arxiv.org/abs/2509.01588}, 
 }
 ```
 

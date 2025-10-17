@@ -147,6 +147,7 @@ def run_inference(audio_path: Path, checkpoint: Path, out_lab: Path):
 if __name__ == "__main__":
     # Example usage
     # python -m ACE.inference --audio path/to/audio.wav --out path/to/output.lab
+
     import argparse
 
     parser = argparse.ArgumentParser(description="Run full-audio inference.")
