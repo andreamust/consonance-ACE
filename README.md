@@ -77,8 +77,10 @@ Models are stored in the `ACE/models` directory, which also contains `.gin` conf
 Run chord inference on an audio file using the trained **conformer_decomposed** model:
 
 ```bash
-python -m ACE.inference --audio path/to/audio.wav --out path/to/output.lab
+python -m ACE.inference --audio path/to/audio.wav --out path/to/output.lab --chord-min-duration 0.5
 ```
+
+The `--chord-min-duration` parameter sets the minimum duration (in seconds) for chord segments; shorter segments will be merged with adjacent ones.
 
 This processes the entire track in 20 s segments, decodes predictions, merges identical consecutive chords, and outputs a .lab file:
 

@@ -69,7 +69,9 @@ def merge_identical_consecutive(intervals: np.ndarray, labels: list[str]):
     return np.array(merged_intervals), merged_labels
 
 
-def run_inference(audio_path: Path, checkpoint: Path, out_lab: Path):
+def run_inference(
+    audio_path: Path, checkpoint: Path, out_lab: Path, chord_min_duration: float = 0.5
+):
     """Run inference on the entire audio by concatenating 20s predictions."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = load_model(str(checkpoint))
@@ -118,6 +120,8 @@ def run_inference(audio_path: Path, checkpoint: Path, out_lab: Path):
             bass_predictions=bass,
             chord_predictions=chord,
             segment_duration=chunk_dur,
+            threshold=0.5,
+            remove_short_min_duration=chord_min_duration,
         )
 
         # Shift time by onset to place in global timeline
@@ -159,6 +163,12 @@ if __name__ == "__main__":
         help="Path to checkpoint file",
     )
     parser.add_argument("--out", type=Path, required=True, help="Output .lab file path")
+    parser.add_argument(
+        "--chord-min-duration",
+        type=float,
+        default=0.5,
+        help="Minimum duration for chord segments (in seconds)",
+    )
     args = parser.parse_args()
 
-    run_inference(args.audio, args.ckpt, args.out)
+    run_inference(args.audio, args.ckpt, args.out, args.chord_min_duration)

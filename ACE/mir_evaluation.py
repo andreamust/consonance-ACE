@@ -144,6 +144,7 @@ def convert_predictions_decomposed(
     chord_predictions: np.ndarray,
     segment_duration: float = 30.0,
     threshold: float = 0.5,
+    remove_short_min_duration: float = 0.3,
 ):
     """
     Convert per-frame chord component predictions to intervals and labels (single
@@ -199,7 +200,9 @@ def convert_predictions_decomposed(
     labels.append(current_label)
 
     # --- STEP 3: Remove short segments ---
-    intervals, labels = remove_short_chords(intervals, labels, min_duration=0.3)
+    intervals, labels = remove_short_chords(
+        intervals, labels, min_duration=remove_short_min_duration
+    )
 
     return np.array(intervals), labels
 
