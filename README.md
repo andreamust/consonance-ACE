@@ -104,7 +104,7 @@ By default, inference uses the pretrained checkpoint located at
 
 - `--threshold`: Threshold for chord component activation (only used with `conformer_decomposed`). Type: `float` (default: `0.5`). 
 
-- `--chunk-dur`: Duration of audio chunks to process (in seconds). Type: `float` (default: `20.0`).
+- `--chunk-dur`: Duration of audio chunks to process (in seconds). Type: `float` (default: `20.0`). Note: This cannot be changed when `conformer_decomposed` model is used with `consonance_decomposed` loss.
 
 
 ## 📑 Citation
