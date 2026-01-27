@@ -98,6 +98,15 @@ The resulting .lab file contains the full chord sequence for the input track and
 By default, inference uses the pretrained checkpoint located at
 `ACE/checkpoints/conformer_decomposed_smooth.ckpt`, provided in this repository.
 
+**Optional parameters:**
+
+- `--model-name`: Model to use for inference. Choices: `conformer` or `conformer_decomposed` (default: `conformer_decomposed`).
+
+- `--threshold`: Threshold for chord component activation (only used with `conformer_decomposed`). Type: `float` (default: `0.5`). 
+
+- `--chunk-dur`: Duration of audio chunks to process (in seconds). Type: `float` (default: `20.0`). Note: This cannot be changed when `conformer_decomposed` model is used with `consonance_decomposed` loss.
+
+
 ## 📑 Citation
 
 If you use this code, please cite:

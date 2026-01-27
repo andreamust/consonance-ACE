@@ -1,6 +1,3 @@
-# Variables
-cache_path = '/home/must/Documents/marl_data/cache/cqt_augment_fix'
-
 # Dataset configuration
 ChocoAudioDataModule.batch_size = 32
 ChocoAudioDataModule.num_workers = 8
@@ -18,6 +15,9 @@ train.check_val_every_n_epoch = 1
 train.accumulate_grad_batches = 1
 train.gradient_clip_val = 0.0
 
+train.data_path = '/home/must/Documents/marl_data/cache/cqt_augment_fix'
+train.vocab_path = './ACE/chords_vocab.joblib'
+
 # Experiment tracking configuration
 wandb_logger.project = 'ACE'
 
@@ -31,6 +31,3 @@ ModelCheckpoint.mode = 'min'
 EarlyStopping.monitor = 'val_loss'
 EarlyStopping.patience = 10 
 EarlyStopping.mode = 'min'
-
-# # Main configuration
-main.cache_path = %cache_path

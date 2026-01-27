@@ -1,9 +1,23 @@
 """
-Training script for the all the models.
+Training script for all the models.
 
-Running example:
-    python -m ACE.trainer
+Supports both CLI and programmatic usage.
 
+Example (CLI):
+    python -m ACE.trainer --model conformer --name my_run --max_epochs 50
+
+Example (API):
+    from ACE.trainer import main
+    main(
+        model_name="conformer",
+        run_name="experiment_01",
+        params={
+            "train.max_epochs": 10,
+            "train.accelerator": "gpu",
+            "ModelCheckpoint.dirpath": "checkpoints",
+            "EarlyStopping.patience": 5
+        }
+    )
 """
 
 import argparse
@@ -45,7 +59,7 @@ class EarlyStopping(EarlyStopping):  # type: ignore
 
 @gin.configurable
 def train(
-    model: L.LightningModule,
+    model_class: type[L.LightningModule],
     data_path: str | Path,
     run_name: str = "default_run",
     max_epochs: int = 100,
@@ -56,6 +70,7 @@ def train(
     check_val_every_n_epoch: int = 10,
     accumulate_grad_batches: int = 1,
     gradient_clip_val: float = 0.0,
+    vocab_path: str | Path = "./ACE/chords_vocab.joblib",
 ):
     """Main training function configurable with gin."""
     # Set torch precision
@@ -76,7 +91,9 @@ def train(
     print(f"Data path: {datamodule.data_path}")
 
     # Initialize model
-    model = gin.get_configurable(model)(vocabularies=datamodule.vocabularies)
+    model = gin.get_configurable(model_class)(
+        vocabularies=datamodule.vocabularies, vocab_path=vocab_path
+    )
 
     # Initialize trainer
     trainer = L.Trainer(
@@ -103,13 +120,26 @@ def train(
     wandb.finish()
 
 
+def bind_overrides(params: dict | None):
+    """Bind a dictionary of overrides to gin parameters."""
+    if params is None:
+        return
+    for key, value in params.items():
+        if value is not None:
+            gin.bind_parameter(key, value)
+
+
+
 @gin.configurable
-def main(model_name: str, run_name: str, cache_path: str = "cqt_augment_long"):
-    """Main function to run training.
-    Args:
-        model_name: Name of the model to train.
-        data_path: Path to the data.
+def main(model_name: str, run_name: str, params: dict | None = None):
     """
+    Minimal main function for both CLI and API.
+
+    params: optional dictionary of gin parameter overrides.
+    """
+    # Load default gin config files
+    gin.parse_config_file("ACE/trainer.gin")
+
     # Import all possible models
     from ACE.models.conformer import ConformerModel
     from ACE.models.conformer_decomposed import ConformerDecomposedModel
@@ -123,29 +153,47 @@ def main(model_name: str, run_name: str, cache_path: str = "cqt_augment_long"):
     # Get the model class from the registry
     ModelClass = model_registry.get(model_name)
     if ModelClass is None:
-        raise ValueError(f"Model {model_name} not found in registry")
+        raise ValueError(f"Unknown model: {model_name}")
 
-    # Initialize gin
-    gin.parse_config_file(Path(f"ACE/models/{model_name}.gin").__str__())
+    # Apply parameter overrides
+    bind_overrides(params)
 
-    # Run training
-    data_path = Path(cache_path)
-    train(model=ModelClass, data_path=data_path, run_name=run_name)
+    # Call train
+    train(model_class=ModelClass, run_name=run_name)
 
 
+# -----------------------------
+# CLI entrypoint
+# -----------------------------
 if __name__ == "__main__":
-    gin.parse_config_file("ACE/trainer.gin")
-    parser = argparse.ArgumentParser(description="Train a model with ACE.")
-    parser.add_argument(
-        "--model", type=str, required=True, help="Name of the model to train."
-    )
-    parser.add_argument(
-        "--name",
-        type=str,
-        required=True,
-        help="Name of the run for logging purposes.",
-    )
-    main(
-        model_name=parser.parse_args().model,
-        run_name=parser.parse_args().name,
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", type=str, required=True)
+    parser.add_argument("--name", type=str, required=True)
+    parser.add_argument("--data_path", type=str)
+    parser.add_argument("--vocab_path", type=str)
+    parser.add_argument("--accelerator", type=str, choices=["cpu", "gpu", "tpu"])
+    parser.add_argument("--max_epochs", type=int)
+    parser.add_argument("--precision", type=str)
+    parser.add_argument("--checkpoint_dir", type=str)
+    parser.add_argument("--checkpoint_save_top_k", type=int)
+    parser.add_argument("--checkpoint_monitor", type=str)
+    parser.add_argument("--earlystop_patience", type=int)
+    parser.add_argument("--earlystop_monitor", type=str)
+    args = parser.parse_args()
+
+    # Map CLI args to gin fully-qualified parameters
+    cli_overrides = {
+        "train.data_path": args.data_path,
+        "train.vocab_path": args.vocab_path,
+        "train.max_epochs": args.max_epochs,
+        "train.precision": args.precision,
+        "train.accelerator": args.accelerator,
+        "ModelCheckpoint.dirpath": args.checkpoint_dir,
+        "ModelCheckpoint.save_top_k": args.checkpoint_save_top_k,
+        "ModelCheckpoint.monitor": args.checkpoint_monitor,
+        "EarlyStopping.patience": args.earlystop_patience,
+        "EarlyStopping.monitor": args.earlystop_monitor,
+    }
+
+    # Call main with CLI overrides
+    main(model_name=args.model, run_name=args.name, params=cli_overrides)

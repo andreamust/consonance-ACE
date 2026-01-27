@@ -6,11 +6,11 @@ import torch.nn as nn
 from torch.optim import AdamW
 from torchaudio.models import Conformer
 from torchmetrics.classification import BinaryAccuracy
+from pathlib import Path
 
 from ACE.losses import ConsonanceDecomposedLoss, DecomposedLoss
 from ACE.mir_evaluation import evaluate_batch_decomposed
 from ACE.utils import PositionalEncoding
-
 
 @gin.configurable
 class ConformerDecomposedModel(L.LightningModule):
@@ -34,10 +34,13 @@ class ConformerDecomposedModel(L.LightningModule):
         min_notes_weight: float = 2.0,
         smoothing_alpha: float = 0.1,
         positional_encoding: bool = False,
+        vocab_path: str | Path = "./ACE/chords_vocab.joblib",
         mir_eval_on_validation: bool = False,
     ):
         super().__init__()
         self.save_hyperparameters(ignore=["loss"])
+        # store path to chords vocabulary (used by mir_evaluation -> convert_ground_truth)
+        self.vocab_path = vocab_path
 
         # Loss function
         assert loss in ["decomposed", "consonance_decomposed"], (
@@ -284,6 +287,7 @@ class ConformerDecomposedModel(L.LightningModule):
                     batched_onsets=batched_onsets,  # type: ignore
                     batched_gt_labels=batched_labels,  # type: ignore
                     segment_duration=20.0,  # 20 seconds segments
+                    vocab_path=self.vocab_path,  # <-- forward vocab path
                 )
 
                 # Log all metrics
@@ -317,6 +321,7 @@ class ConformerDecomposedModel(L.LightningModule):
                 batched_onsets=batched_onsets,  # type: ignore
                 batched_gt_labels=batched_labels,  # type: ignore
                 segment_duration=20.0,  # 20 seconds segments
+                vocab_path=self.vocab_path,  # <-- forward vocab path
             )
 
             # Log all metrics
