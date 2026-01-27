@@ -8,7 +8,7 @@ ChocoAudioDataModule.train_ratio = 0.85
 # Training configuration
 train.max_epochs = 100
 train.precision = 'bf16-mixed'
-train.accelerator = 'cpu'
+train.accelerator = 'cuda'
 train.devices = 1
 train.log_every_n_steps = 1
 train.check_val_every_n_epoch = 1
