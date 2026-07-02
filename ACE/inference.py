@@ -14,6 +14,7 @@ from ACE.mir_evaluation import (
     convert_predictions,
     convert_predictions_decomposed,
     remove_short_chords,
+    sync_chords_to_beats,
 )
 from ACE.models.conformer import ConformerModel
 from ACE.models.conformer_decomposed import ConformerDecomposedModel
@@ -116,8 +117,15 @@ def run_inference(
     model_name: str = "conformer_decomposed",
     threshold: float = 0.5,
     chunk_dur: float = 20.0,
+    beat_sync: bool = False,
+    beat_checkpoint: str = "final0",
 ):
-    """Run inference on the entire audio by concatenating 20s predictions."""
+    """Run inference on the entire audio by concatenating 20s predictions.
+
+    If `beat_sync` is True, predictions are collapsed onto a beat grid (one chord
+    per beat, chosen as the most present chord within that beat) using Beat This!
+    for beat tracking, instead of removing short chord segments.
+    """
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = load_model(str(checkpoint), vocab_path=vocab_path, model_name=model_name)
 
@@ -193,8 +201,30 @@ def run_inference(
     # Concatenate and merge
     if all_intervals:
         all_intervals = np.vstack(all_intervals)
-        # First, remove short chords
-        all_intervals, all_labels = remove_short_chords(all_intervals, all_labels)
+
+        if beat_sync:
+            # Predict one chord per beat, taking the most present chord in each
+            # beat instead of filtering out short segments.
+            try:
+                from beat_this.inference import File2Beats
+            except ImportError as e:
+                raise ImportError(
+                    "beat_sync=True requires the 'beat_this' package "
+                    "(https://github.com/CPJKU/beat_this) to be installed."
+                ) from e
+
+            print("🥁 Estimating beats with Beat This!")
+            get_beats = File2Beats(checkpoint_path=beat_checkpoint, device=device)
+            beats, _downbeats = get_beats(str(audio_path))
+            all_intervals, all_labels = sync_chords_to_beats(
+                all_intervals, all_labels, beats, total_dur
+            )
+        else:
+            # First, remove short chords
+            all_intervals, all_labels = remove_short_chords(
+                all_intervals, all_labels, min_duration=chord_min_duration
+            )
+
         # Then, merge identical consecutive chords
         all_intervals, all_labels = merge_identical_consecutive(
             all_intervals, all_labels
@@ -251,6 +281,20 @@ if __name__ == "__main__":
         default=20.0,
         help="Duration of audio chunks to proces s (in seconds)",
     )
+    parser.add_argument(
+        "--beat-sync",
+        action="store_true",
+        help=(
+            "Predict one chord per beat (using Beat This! for beat tracking) "
+            "instead of removing short chord segments."
+        ),
+    )
+    parser.add_argument(
+        "--beat-checkpoint",
+        type=str,
+        default="final0",
+        help="Beat This! checkpoint to use for beat tracking (only with --beat-sync)",
+    )
     args = parser.parse_args()
 
     run_inference(
@@ -262,6 +306,8 @@ if __name__ == "__main__":
         model_name=args.model_name,
         threshold=args.threshold,
         chunk_dur=args.chunk_dur,
+        beat_sync=args.beat_sync,
+        beat_checkpoint=args.beat_checkpoint,
         # args.audio,
         # args.ckpt,
         # args.vocab_path,

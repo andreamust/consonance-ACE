@@ -106,6 +106,10 @@ By default, inference uses the pretrained checkpoint located at
 
 - `--chunk-dur`: Duration of audio chunks to process (in seconds). Type: `float` (default: `20.0`). Note: This cannot be changed when `conformer_decomposed` model is used with `consonance_decomposed` loss.
 
+- `--beat-sync`: If set, predicts one chord per beat instead of removing short chord segments. Beats are estimated with [Beat This!](https://github.com/CPJKU/beat_this), and each beat is assigned the chord that covers the largest portion of that beat (i.e. the most present chord), reducing fragmentation without arbitrary duration thresholds. When enabled, `--chord-min-duration` is ignored.
+
+- `--beat-checkpoint`: Beat This! checkpoint to use for beat tracking (only relevant with `--beat-sync`). Type: `str` (default: `final0`).
+
 
 ## 📑 Citation
 

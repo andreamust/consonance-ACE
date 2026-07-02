@@ -89,6 +89,65 @@ def remove_short_chords(intervals, labels, min_duration=0.3):
     return np.array(filtered_intervals), filtered_labels
 
 
+def sync_chords_to_beats(
+    intervals: np.ndarray,
+    labels: list[str],
+    beat_times: np.ndarray,
+    total_duration: float,
+):
+    """
+    Collapse frame-level chord predictions onto a beat grid, one chord per beat.
+
+    Instead of dropping short-lived predictions (see `remove_short_chords`), each
+    beat is assigned the label that covers the largest total duration within that
+    beat's span (i.e. the most present chord for that beat).
+
+    Args:
+        intervals (np.ndarray): shape (n_events, 2) - raw predicted chord intervals.
+        labels (list of str): raw predicted chord labels, aligned with `intervals`.
+        beat_times (np.ndarray): beat onset times (in seconds), as returned by a beat
+        tracker (e.g. Beat This!).
+        total_duration (float): duration of the whole track (in seconds), used as the
+        end boundary of the last beat.
+
+    Returns:
+        beat_intervals (np.ndarray): shape (n_beats, 2)
+        beat_labels (list of str)
+    """
+    if len(intervals) == 0:
+        return np.array(intervals), list(labels)
+
+    # Convert intervals to numpy array for easier manipulation
+    intervals = np.asarray(intervals, dtype=float)
+    starts, ends = intervals[:, 0], intervals[:, 1]
+
+    # Filter beat times to be within the total duration
+    beat_times = np.asarray(beat_times, dtype=float)
+    beat_times = beat_times[(beat_times > 0) & (beat_times < total_duration)]
+    boundaries = np.unique(np.concatenate(([0.0], beat_times, [total_duration])))
+
+    # For each beat interval, find the chord label that has the maximum overlap
+    beat_intervals = []
+    beat_labels = []
+
+    for beat_start, beat_end in zip(boundaries[:-1], boundaries[1:]):
+        overlap = np.clip(
+            np.minimum(ends, beat_end) - np.maximum(starts, beat_start), 0, None
+        )
+        if overlap.sum() <= 0:
+            continue
+
+        durations: dict[str, float] = {}
+        for label, dur in zip(labels, overlap):
+            if dur > 0:
+                durations[label] = durations.get(label, 0.0) + dur
+
+        beat_intervals.append((beat_start, beat_end))
+        beat_labels.append(max(durations, key=durations.get))  # type: ignore
+
+    return np.array(beat_intervals), beat_labels
+
+
 def convert_predictions(
     predictions: np.ndarray, vocabulary: str = "majmin", segment_duration: float = 30.0
 ):
