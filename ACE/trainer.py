@@ -27,9 +27,9 @@ import gin
 import lightning as L
 import torch
 import wandb
-from lightning.pytorch.callbacks.early_stopping import EarlyStopping  # type: ignore
+from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.callbacks.lr_monitor import LearningRateMonitor
-from lightning.pytorch.callbacks.model_checkpoint import ModelCheckpoint  # type: ignore
+from lightning.pytorch.callbacks.model_checkpoint import ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
 
 from .dataloader import ChocoAudioDataModule
@@ -42,7 +42,7 @@ def wandb_logger(project: str, name: str, group: str | None = None) -> WandbLogg
 
 
 @gin.configurable
-class ModelCheckpoint(ModelCheckpoint):  # type: ignore
+class ModelCheckpoint(ModelCheckpoint):
     """Model checkpoint callback configurable with gin."""
 
     def __init__(self, **kwargs):
@@ -50,7 +50,7 @@ class ModelCheckpoint(ModelCheckpoint):  # type: ignore
 
 
 @gin.configurable
-class EarlyStopping(EarlyStopping):  # type: ignore
+class EarlyStopping(EarlyStopping):
     """Early stopping callback configurable with gin."""
 
     def __init__(self, **kwargs):
@@ -60,7 +60,7 @@ class EarlyStopping(EarlyStopping):  # type: ignore
 @gin.configurable
 def train(
     model_class: type[L.LightningModule],
-    data_path: str | Path,
+    data_path: str | Path = "",
     run_name: str = "default_run",
     max_epochs: int = 100,
     precision: str = "16-mixed",
@@ -82,7 +82,7 @@ def train(
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
 
     # Initialize logger
-    logger = wandb_logger(name=run_name)  # type: ignore
+    logger = wandb_logger(name=run_name)
 
     # Initialize data module
     datamodule = ChocoAudioDataModule(data_path=data_path)
@@ -127,7 +127,6 @@ def bind_overrides(params: dict | None):
     for key, value in params.items():
         if value is not None:
             gin.bind_parameter(key, value)
-
 
 
 @gin.configurable

@@ -10,18 +10,26 @@ import librosa
 import numpy as np
 import torch
 
-from ACE.mir_evaluation import convert_predictions_decomposed, remove_short_chords, convert_predictions
+from ACE.mir_evaluation import (
+    convert_predictions,
+    convert_predictions_decomposed,
+    remove_short_chords,
+)
+from ACE.models.conformer import ConformerModel
 from ACE.models.conformer_decomposed import ConformerDecomposedModel
 from ACE.preprocess.audio_processor import AudioChunkProcessor
 from ACE.preprocess.transforms import CQTransform
-from ACE.models.conformer import ConformerModel
 
 
-def load_model(checkpoint_path: str, vocab_path: str | Path = "./ACE/chords_vocab.joblib", model_name: str = "conformer_decomposed"):
+def load_model(
+    checkpoint_path: str,
+    vocab_path: str | Path = "./ACE/chords_vocab.joblib",
+    model_name: str = "conformer_decomposed",
+):
     """Load trained model from checkpoint."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    if (model_name == "conformer"):
+    if model_name == "conformer":
         model = ConformerModel.load_from_checkpoint(
             checkpoint_path,
             map_location=device,
@@ -32,7 +40,7 @@ def load_model(checkpoint_path: str, vocab_path: str | Path = "./ACE/chords_voca
         model.eval().to(device)
         print(f"✅ Loaded model from {checkpoint_path} and vocab from {vocab_path}")
         return model
-    elif (model_name == "conformer_decomposed"):
+    elif model_name == "conformer_decomposed":
         model = ConformerDecomposedModel.load_from_checkpoint(
             checkpoint_path,
             vocabularies={"root": 13, "bass": 13, "onehot": 12},
@@ -100,10 +108,10 @@ def merge_identical_consecutive(intervals: np.ndarray, labels: list[str]):
 
 
 def run_inference(
-    audio_path: Path, 
+    audio_path: Path,
     checkpoint: Path,
-    vocab_path: str | Path, 
-    out_lab: Path, 
+    vocab_path: str | Path,
+    out_lab: Path,
     chord_min_duration: float = 0.5,
     model_name: str = "conformer_decomposed",
     threshold: float = 0.5,
@@ -116,7 +124,7 @@ def run_inference(
     # Parameters
     sample_rate = 22050
     hop_length = 512
-    chunk_dur = chunk_dur # seconds, default is 20 same as training
+    chunk_dur = chunk_dur  # seconds, default is 20 same as training
 
     # Preprocessor that keeps audio in memory
     transform = CQTransform(sample_rate, hop_length)
@@ -246,13 +254,21 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run_inference(
-        args.audio, 
-        args.ckpt, 
-        args.vocab_path, 
-        args.out, 
-        args.chord_min_duration, 
-        args.vocab_path, 
-        args.model_name, 
-        args.threshold, 
-        args.chunk_dur
+        audio_path=args.audio,
+        checkpoint=args.ckpt,
+        vocab_path=args.vocab_path,
+        out_lab=args.out,
+        chord_min_duration=args.chord_min_duration,
+        model_name=args.model_name,
+        threshold=args.threshold,
+        chunk_dur=args.chunk_dur,
+        # args.audio,
+        # args.ckpt,
+        # args.vocab_path,
+        # args.out,
+        # args.chord_min_duration,
+        # args.vocab_path,
+        # args.model_name,
+        # args.threshold,
+        # args.chunk_dur,
     )
